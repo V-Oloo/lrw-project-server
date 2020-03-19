@@ -1,0 +1,1 @@
+{"version":3,"file":"get-companyId.decorator.js","sourceRoot":"","sources":["../../../src/employee/get-companyId.decorator.ts"],"names":[],"mappings":";;AAAA,2CAAsD;AAGzC,QAAA,YAAY,GAAG,6BAAoB,CAAC,CAAC,IAAY,EAAE,GAAG,EAAY,EAAE;IAC/E,OAAO,IAAI,CAAC,CAAC,CAAC,GAAG,CAAC,IAAI,IAAI,GAAG,CAAC,IAAI,CAAC,IAAI,CAAC,CAAC,CAAC,CAAC,GAAG,CAAC,IAAI,CAAC;AACtD,CAAC,CAAC,CAAC"}
