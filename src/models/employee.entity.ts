@@ -1,5 +1,4 @@
-import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Unique, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
-import { File } from "./files.entity";
+import { BaseEntity, PrimaryGeneratedColumn, Column, Entity, Unique, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcrypt';
   
 
@@ -25,8 +24,16 @@ export class Employee extends BaseEntity{
     email: string;
 
     @Column()
-    address: string;
+    street: string;
 
+    @Column()
+    state: string;
+
+    @Column()
+    city: string;
+
+    @Column()
+    zipCode: string;
     @Column()
     jobTitle: string;
 
@@ -39,14 +46,11 @@ export class Employee extends BaseEntity{
     @Column({nullable: true, default: 'ACTIVE'})
     status: string;
 
-    @Column({default: "assets/images/avatars/avatar.png"})
+    @Column({ default: 'assets/images/avatars/avatar.png'})
     avatar: string;
 
     @Column({ type: 'varchar', length: 300 })
     createdBy: string;
-
-    @OneToMany(() => File, files => files.emp,{ onUpdate: 'CASCADE', onDelete: 'CASCADE' })
-    files: File[];  
 
     @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
     createDateTime: Date;
@@ -63,8 +67,8 @@ export class Employee extends BaseEntity{
     }
 
     toResponseObject() {
-        const {id, email,firstname, lastname, jobTitle, phone, address, status, phonePrefix, avatar} = this;
-        return {id, email,firstname, lastname, jobTitle, phone, address, status, phonePrefix, avatar};
+        const {id, email,firstname, lastname, jobTitle, phone, state, city,zipCode,street, status, phonePrefix, avatar} = this;
+        return {id, email,firstname, lastname, jobTitle, phone, state, city,zipCode,street, status, phonePrefix, avatar};
     }
 
 

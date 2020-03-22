@@ -1,5 +1,4 @@
 import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm";
-// import { TaskStatus } from "./task-status.enum";
 import { Project } from "./project.entity";
 import { Comment } from "./comment.entity";
 import { AssignedEmployees } from "./assigned_employess.entity";
@@ -17,18 +16,36 @@ export class Task extends BaseEntity {
     description: string;
 
     @Column()
-    expectedStartDate: string;
+    plannedStartDate: string;
 
     @Column()
-    expectedEndDate: string;
+    plannedEndDate: string;
 
     @Column()
     status: string;
 
+    @Column()
+    street: string;
+
+    @Column()
+    state: string;
+
+    @Column()
+    city: string;
+
+    @Column()
+    zipCode: string;
+
+    @Column({type: 'timestamptz',nullable: true})
+    workStart: Date;
+
+    @Column({type: 'timestamptz',nullable: true})
+    workEnd: Date;
+
     @ManyToOne(() => Project,project => project.tasks)
     project: Project
 
-    @OneToMany(() => AssignedEmployees, emp => emp.task,{ onUpdate: 'CASCADE', onDelete: 'CASCADE' })
+    @OneToMany(() => AssignedEmployees, emp => emp.task)
     emp: AssignedEmployees[];  
 
     @OneToMany(() => Comment, comment => comment.task, {eager: false})

@@ -8,8 +8,8 @@ import { ChangePasswordDTO } from "./dto/change-password.dto";
 import { Employee } from "../models/employee.entity";
 import * as generator from 'generate-password'
 import { EmployeeStatus } from "./employee-status.enum";
-// import { sendEmail } from "../utils/sendMail";
-// import { ConfirmEmailLink } from "../utils/confirmEmailLinks";
+import { sendEmail } from "../utils/sendEmail";
+import { confirmEmailLink } from "../utils/confirmEmailLink";
 
 
 @EntityRepository(Employee)
@@ -19,7 +19,7 @@ export class EmployeeRepository extends Repository<Employee> {
         const query = this.createQueryBuilder('emp');
 
         const employee = await query
-        .select(["emp.id", "emp.firstname", "emp.lastname", "emp.phone", "emp.email", "emp.address", "emp.jobTitle", "emp.status"])
+        .select(["emp.id", "emp.firstname", "emp.lastname", "emp.phone", "emp.email","emp.street","emp.state","emp.city","emp.zipCode", "emp.jobTitle", "emp.status"])
         .where("emp.status IN (:...status)", { status: [ "ACTIVE", "INACTIVE"] })
         .getMany()
 
@@ -39,7 +39,7 @@ export class EmployeeRepository extends Repository<Employee> {
     }
 
     async addEmployee(createEmployeeDTO: CreateEmployeeDTO): Promise<void> {
-        const {phone, email, firstname, lastname, jobTitle, address, phonePrefix } = createEmployeeDTO; 
+        const {phone, email, firstname, lastname, jobTitle, state, street, zipCode, city, phonePrefix } = createEmployeeDTO; 
 
 
         const password = generator.generate({
@@ -59,15 +59,16 @@ export class EmployeeRepository extends Repository<Employee> {
             employee.jobTitle = jobTitle;
             employee.salt = salt;
             employee.password = pass;
-            employee.address = address;
+            employee.state = state;
+            employee.city = city;
+            employee.street = street;
+            employee.zipCode = zipCode; 
             employee.createdBy = "Admin";
-           
+            
 
             try {
-                console.log(password);
-                await employee.save();
-                // const id = 10;
-                // await sendEmail(email,await ConfirmEmailLink(id))
+               await employee.save();
+               await sendEmail(email,await confirmEmailLink(employee.id), password)
             } catch (error) {
                 if (error.code === '23505'){
                     throw new ConflictException('email address already exist');
@@ -81,13 +82,18 @@ export class EmployeeRepository extends Repository<Employee> {
 
     async updateEmployee( id: number, createEmployeeDTO: CreateEmployeeDTO): Promise<UpdateResult> {
 
-        const { email,firstname, lastname, jobTitle, phone, address, phonePrefix} = createEmployeeDTO;
+        const { email,firstname, lastname, jobTitle, phone, phonePrefix, street, zipCode, state, city} = createEmployeeDTO;
 
         const user = await this.findOne(id);
 
         if(user) {
             const result = this.createQueryBuilder().update()
-                           .set({email: email, firstname: firstname, lastname: lastname, jobTitle: jobTitle, phone: phone, phonePrefix: phonePrefix, address: address})
+                           .set({email: email, firstname: firstname, 
+                                 lastname: lastname, jobTitle: jobTitle, 
+                                 phone: phone, phonePrefix: phonePrefix,
+                                 state: state, city: city, street: street,
+                                 zipCode: zipCode
+                                })
                            .where("id = :id", {id:id}).execute();
 
             return result;       

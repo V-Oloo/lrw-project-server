@@ -17,6 +17,15 @@ export class CreateCustomerDTO {
     organization: string;
 
     @IsNotEmpty()
-    address: string;
+    state: string;
+
+    @IsNotEmpty()
+    street: string;
+
+    @IsNotEmpty()
+    zipCode: string;
+
+    @IsNotEmpty()
+    city: string;
 
 }

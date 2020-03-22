@@ -25,16 +25,19 @@ export class CustomerRepository extends Repository<Customer> {
     }
 
     async addCustomer(createCustomerDTO: CreateCustomerDTO): Promise<void> {
-        const {phone, email, contactPerson, organization, address,phonePrefix } = createCustomerDTO; 
+        const {phone, email, contactPerson, organization,phonePrefix, state, street, city, zipCode } = createCustomerDTO; 
 
             const customer = new Customer();
             customer.phonePrefix = phonePrefix;
             customer.phone = phone;
             customer.email = email;
             customer.organization = organization;
-            customer.address = address;
+            customer.state = state;
+            customer.city= city;
+            customer.street= street;
+            customer.zipCode = zipCode;
             customer.contactPerson = contactPerson;
-            customer.address = address;
+           
            
             try {
                  await customer.save();

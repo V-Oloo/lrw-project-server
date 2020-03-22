@@ -17,7 +17,16 @@ export class CreateEmployeeDTO {
     lastname: string;
 
     @IsNotEmpty()
-    address: string;
+    state: string;
+
+    @IsNotEmpty()
+    street: string;
+
+    @IsNotEmpty()
+    zipCode: string;
+
+    @IsNotEmpty()
+    city: string;
 
     @IsNotEmpty()
     jobTitle: string;

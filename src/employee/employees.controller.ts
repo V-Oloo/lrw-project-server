@@ -15,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { EmployeeStatus } from './employee-status.enum';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
 
 
 @Controller('employees')
@@ -67,7 +68,11 @@ export class EmployeesController {
     @Post('/login')
     login(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto): Promise<any>{
         return this.employeeService.login(authCredentialsDto)
+    }
 
+    @Post('/genpasswordreset')
+    resetPassword(@Body(ValidationPipe) resetPasswordDTO: ResetPasswordDTO): Promise<any>{
+        return this.employeeService.resetPassword(resetPasswordDTO);
     }
 
     @Patch('/:userId/changePassword')
@@ -103,10 +108,5 @@ export class EmployeesController {
 
   }
     
-    @Post('/test')
-    email(@Body() email: string) {
-        return this.employeeService.sendEmail(email);
-
-    }
 
 }

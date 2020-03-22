@@ -24,7 +24,16 @@ export class Customer extends BaseEntity {
     email: string;
 
     @Column()
-    address: string;
+    street: string;
+
+    @Column()
+    state: string;
+
+    @Column()
+    city: string;
+
+    @Column()
+    zipCode: string;
 
     @Column({default: 'ACTIVE'})
     status: string;
@@ -39,7 +48,7 @@ export class Customer extends BaseEntity {
     lastChangedDateTime: Date;
     
     toResponseObject() {
-        const {id, contactPerson, phone, email, address, organization, phonePrefix} = this;
-        return {id, contactPerson, phone, email, address, organization, phonePrefix};
+        const {id, contactPerson, phone, email, state, city,zipCode,street, organization, phonePrefix} = this;
+        return {id, contactPerson, phone, email, state, city,zipCode,street, organization, phonePrefix};
     }
 }

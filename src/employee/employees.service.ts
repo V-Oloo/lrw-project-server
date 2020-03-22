@@ -1,25 +1,25 @@
-import { Injectable, UnauthorizedException, HttpStatus, HttpException } from '@nestjs/common';
+import { JwtPayload } from './jwt-payload.interface';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { Injectable, UnauthorizedException, HttpStatus, HttpException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmployeeRepository } from './employee.repository';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './jwt-payload.interface';
 import { Employee } from '../models/employee.entity';
 import { UpdateResult } from 'typeorm';
 import { CreatePasswordDTO } from './dto/create-password.dto';
 import { ChangePasswordDTO } from './dto/change-password.dto';
-import { MailerService } from '@nestjs-modules/mailer';
 import { EmployeeStatus } from './employee-status.enum';
+import { sendEmailResetPWD } from 'src/utils/sendResetEmail';
+import { resetPasswordLink } from 'src/utils/resetPasswordLink';
 
 @Injectable()
 export class EmployeesService {
-   // @Inject('MailerProvider') private readonly mailerProvider
     constructor(
         @InjectRepository(EmployeeRepository)
         private employeeRepository: EmployeeRepository,
         private jwtService : JwtService,
-        private readonly mailerService: MailerService
         ) {}
 
     async getEmployees(): Promise<Employee[]> {
@@ -89,27 +89,31 @@ export class EmployeesService {
           };
      }
 
+    async resetPassword(resetPasswordDto: ResetPasswordDTO): Promise<void> {
+       const { email } = resetPasswordDto;
+       const employee = this.employeeRepository.findOne({ email: email});
+
+       if(!employee) {
+        throw new HttpException('Email address does not exist', HttpStatus.NOT_FOUND);
+       }
+
+       const userId = (await employee).id;
+       const name = (await employee).firstname;
+
+
+       try {
+        await sendEmailResetPWD(email,await resetPasswordLink(userId),name );
+       } catch (error) {
+        throw new InternalServerErrorException('Technical error, please try again!');
+       }
+
+      
+
+
+    } 
+
     async updateStatus(id: number, status: EmployeeStatus) {
         return this.employeeRepository.updateStatus(id, status);
     }
 
-    async sendEmail(email: string): Promise<void> {
-
-       const sent = await this
-        .mailerService
-        .sendMail({
-          to: email, // list of receivers
-          from: 'support@turyde.com', // sender address
-          subject: 'Testing Nest MailerModule ✔', // Subject line
-          text: 'TuRyde Support', // plaintext body
-          html: '<b>welcome</b>', // HTML body content
-        })
-        .then((success) => {
-            console.log(success)
-          })
-          .catch((err) => {
-            console.log(err)
-          });
-
-    }
 }

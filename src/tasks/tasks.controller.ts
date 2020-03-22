@@ -62,4 +62,10 @@ export class TasksController {
       return this.taskService.getEmployeeTasks(id);
     }
 
+    
+    @Get('/completedTasks/testing')
+    getCompletedTasks(): Promise<any> {
+      return this.taskService.getCompleteTasks();
+    }
+
 }

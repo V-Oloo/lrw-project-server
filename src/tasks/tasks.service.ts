@@ -58,6 +58,10 @@ export class TasksService {
         return await this.taskRepository.getProjectTaskId(id);
     }
 
+    async getCompleteTasks(): Promise<any> {
+        return await this.taskRepository.getCompletedTasksTimeStamp();
+    }
+
     async getEmployeeTasks(empId: number): Promise<any> {
         return await this.taskRepository.getEmployeeTasks(empId);
     }

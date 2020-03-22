@@ -8,10 +8,22 @@ export class TaskDTO {
     description: string;
 
     @IsNotEmpty()
-    expectedStartDate: string;
+    plannedStartDate: string;
 
     @IsNotEmpty()
-    expectedEndDate: string;
+    plannedEndDate: string;
+
+    @IsNotEmpty()
+    street: string;
+
+    @IsNotEmpty()
+    state: string;
+
+    @IsNotEmpty()
+    city: string;
+
+    @IsNotEmpty()
+    zipCode: string;
 
     @IsNotEmpty()
     @IsArray()
