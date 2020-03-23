@@ -8,6 +8,7 @@ import { TaskStatus } from './task-status.enum';
 import { GetProject } from './decorators/get-project.decorator';
 import { Project } from '../models/project.entity';
 import { Task } from '../models/tasks.entity';
+import { EmailDto } from './dto/email.dto';
 
 @Controller('tasks')
 // @UseGuards(AuthGuard())
@@ -67,5 +68,12 @@ export class TasksController {
     getCompletedTasks(): Promise<any> {
       return this.taskService.getCompleteTasks();
     }
+
+    @Post('/:id/sendMail')
+    sendMailtoClient(@Param('id', ParseIntPipe) id: number, @Body() email: EmailDto) {
+      console.log(email);
+      console.log(id);
+       return this.taskService.sendEmails(id, email);
+     }
 
 }

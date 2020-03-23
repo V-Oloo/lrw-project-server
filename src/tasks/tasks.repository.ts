@@ -138,8 +138,9 @@ export class TaskRepository extends Repository<Task> {
     async getTask(id: number): Promise<Task> {
         const query = this.createQueryBuilder('task').
                            leftJoinAndSelect('task.project' , 'p')
+                           .leftJoinAndSelect('p.customer','c')
                           .where("task.id = :id", { id: id })
-                          .select(['task.*', 'p.name as project_name'])
+                          .select(['task.*', 'p.name as project_name','c.organization as org','c.email as email'])
                           .getRawOne();
         return query;                  
     }

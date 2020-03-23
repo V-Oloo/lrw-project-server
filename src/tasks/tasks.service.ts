@@ -1,5 +1,5 @@
 import { GetTaskFilterDto } from './dto/get-tasks-filter.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
 import { TaskDTO } from './dto/tasks.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskStatus } from './task-status.enum';
@@ -7,6 +7,9 @@ import { TaskRepository } from './tasks.repository';
 import { Task } from '../models/tasks.entity';
 import { Project } from '../models/project.entity';
 import { UpdateResult } from 'typeorm';
+import { sendEmail } from 'src/utils/sendEmail';
+import { clientEmail } from 'src/utils/ClientEmail';
+import { EmailDto } from './dto/email.dto';
 
 @Injectable()
 export class TasksService {
@@ -65,4 +68,13 @@ export class TasksService {
     async getEmployeeTasks(empId: number): Promise<any> {
         return await this.taskRepository.getEmployeeTasks(empId);
     }
+
+    async sendEmails(id: number, emailDto: EmailDto) {
+        const data = this.getTaskById(id)
+        console.log(data);
+        if(!data){
+            throw new NotFoundException(`Task not found`);
+        }
+        await clientEmail(data, emailDto);
+     }
 }

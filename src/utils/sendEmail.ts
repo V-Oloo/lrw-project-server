@@ -1,4 +1,6 @@
 import * as nodemailer from 'nodemailer';
+import * as hbs from 'nodemailer-express-handlebars'
+
 
 export const sendEmail = async (email: string, link: string, password: string) => {
   
@@ -15,23 +17,36 @@ export const sendEmail = async (email: string, link: string, password: string) =
     },
   });
 
-  // send mail with defined transport object
-  const info = await transporter.sendMail({
-    from: '"Support"<support@lrwtrafficsystems.com>',
-    to: email, // list of receivers
-    subject: 'Account activation', // Subject line
-    text: 'Hello User', // plain text body
-    html: `<b>Thank you for creating an account with us, you are most welcome</b>
-            click the link below to activate your account
-           <a href="${link}">confirm Email</a>
-           </b> then you can proceed to login using: ${password}`, // html body
-  }).then((success) => {
-            console.log(success)
-          })
-          .catch((err) => {
-            console.log(err)
-          });
+  transporter.use('compile', hbs({
+    viewEngine: {
+      extName: '.hbs',
+      partialsDir: './template',
+      layoutsDir: './template',
+      defaultLayout: 'index.hbs',
+    },
+    viewPath: './template',
+    extName: '.hbs',
+  }));
 
-  // console.log('Message sent: %s', info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-};
+  let mailOptions = {
+    from: '"Support"<support@lrwtrafficsystems.com>',
+    to: email,
+    subject: 'Account activation',
+    text: 'Hello User',
+    template: 'index',
+    context: {
+      code: 'cf1a3f828287',
+      username: 'john doe',
+    }
+  }
+
+  // send mail with defined transport object
+   const info = await transporter.sendMail(mailOptions, (err,info) => {
+     if(err){
+      console.log(err)
+     } else {
+      console.log(info)
+     }
+   });
+ 
+  };

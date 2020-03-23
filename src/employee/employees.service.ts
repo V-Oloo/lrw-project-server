@@ -13,6 +13,7 @@ import { ChangePasswordDTO } from './dto/change-password.dto';
 import { EmployeeStatus } from './employee-status.enum';
 import { sendEmailResetPWD } from 'src/utils/sendResetEmail';
 import { resetPasswordLink } from 'src/utils/resetPasswordLink';
+import { sendEmail } from 'src/utils/sendEmail';
 
 @Injectable()
 export class EmployeesService {
@@ -115,5 +116,7 @@ export class EmployeesService {
     async updateStatus(id: number, status: EmployeeStatus) {
         return this.employeeRepository.updateStatus(id, status);
     }
+
+  
 
 }
