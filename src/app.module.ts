@@ -28,7 +28,7 @@ import { MulterModule } from '@nestjs/platform-express';
     ],
   controllers: [],
   providers: [
-    {provide: APP_FILTER, useClass: HttpErrorFilter},
+   // {provide: APP_FILTER, useClass: HttpErrorFilter},
     {provide: APP_INTERCEPTOR, useClass: TransformInterceptor}
   ],
 })

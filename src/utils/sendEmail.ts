@@ -22,7 +22,7 @@ export const sendEmail = async (email: string, link: string, password: string) =
       extName: '.hbs',
       partialsDir: './template',
       layoutsDir: './template',
-      defaultLayout: 'index.hbs',
+      defaultLayout: 'confirm.hbs',
     },
     viewPath: './template',
     extName: '.hbs',
@@ -35,8 +35,9 @@ export const sendEmail = async (email: string, link: string, password: string) =
     text: 'Hello User',
     template: 'index',
     context: {
-      code: 'cf1a3f828287',
-      username: 'john doe',
+      pass: password,
+      email: email,
+      link: link
     }
   }
 

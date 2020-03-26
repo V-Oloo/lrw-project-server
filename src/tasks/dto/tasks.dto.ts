@@ -2,12 +2,6 @@ import { IsNotEmpty, IsArray} from 'class-validator';
 export class TaskDTO {
 
     @IsNotEmpty()
-    name: string;
-
-    @IsNotEmpty()
-    description: string;
-
-    @IsNotEmpty()
     plannedStartDate: string;
 
     @IsNotEmpty()
@@ -26,6 +20,9 @@ export class TaskDTO {
     zipCode: string;
 
     @IsNotEmpty()
+    createdBy: number;
+
+    @IsNotEmpty()
     @IsArray()
-    assignedEmployees: string[];
+    flaggers: string[];
 }

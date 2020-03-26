@@ -19,4 +19,7 @@ export class EmailDto {
     @IsNotEmpty()
     name: string;
 
+    @IsNotEmpty()
+    time: string;
+
 }

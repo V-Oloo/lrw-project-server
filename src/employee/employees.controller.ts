@@ -1,3 +1,4 @@
+import { NotificationStatus } from './notification-status.enum';
 import { EmployeeStatusValidationPipe } from './pipes/employee-status-validation';
 import { 
     Controller, Post, Body, UsePipes,
@@ -16,6 +17,7 @@ import { EmployeeStatus } from './employee-status.enum';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { NotificationDto } from './dto/notification.dto';
 
 
 @Controller('employees')
@@ -88,7 +90,30 @@ export class EmployeesController {
         return this.employeeService.updateStatus(id, status);
    }
 
-   @Post('/:userid/avatar')
+   @Patch('/notification/:id/status')
+   updateNotificStatus(
+       @Param('id', ParseIntPipe) id: number, 
+       @Body('status') status:NotificationStatus ) {
+       
+        return this.employeeService.updateNotifStatus(id, status);
+   }
+
+   @Get('/:id/notifications')
+   getNotications(@Param('id') id: number): Promise<any> {
+     return this.employeeService.getNotifications(id);
+   }
+
+   @Get('/notification/:id')
+   getNotication(@Param('id') id: number): Promise<any> {
+     return this.employeeService.getNotification(id);
+   }
+
+   @Post('notification')
+   addNotification(@Body(ValidationPipe) notificationDTO: NotificationDto): Promise<any> {
+        return this.employeeService.addNotification(notificationDTO);
+   }
+
+   @Post('/:id/avatar')
     @UseInterceptors(FileInterceptor('file',
     {
       storage: diskStorage({
@@ -103,8 +128,8 @@ export class EmployeesController {
   )
   )
   uploadAvatar(@Param('userid') userId, @UploadedFile() file) {
-
-    this.employeeService.setAvatar(Number(userId), `${this.SERVER_URL}/${file.path}`);
+    console.log(file.path);
+    this.employeeService.setAvatar(Number(userId), `${this.SERVER_URL}${file.path}`);
 
   }
     

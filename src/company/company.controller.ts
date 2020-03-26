@@ -1,33 +1,20 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get,ParseIntPipe, Param, Patch, Body } from '@nestjs/common';
 import { CompanyService } from './company.service';
-// import { CreateCompanyDTO } from './dto/create-company.dto';
-// import { Company } from '../model/company.entity';
+import { Company } from '../models/company.entity';
+import { CreateCompanyDTO } from './dto/create-company.dto';
+
 
 @Controller('company')
 export class CompanyController {
     constructor(private companyService: CompanyService) {}
 
-    // @Get()
-    // getAllCompanies() {
-    //   return this.companyService.getCompanies();
-    // }
+    @Get('/:id')
+    getCompanyById(@Param('id', ParseIntPipe) id: number): Promise<Company> {
+      return this.companyService.getCompanyById(id);
+    }
 
-    // @Get('/:id')
-    // getCompanyById(@Param('id', ParseIntPipe) id: number): Promise<Company> {
-    //   return this.companyService.getCompanyById(id);
-    // }
-
-    // @Post()
-    // @UsePipes(ValidationPipe)
-    // createCompany(@Body() body: CreateCompanyDTO ): Promise<Company> {
-    //   return this.companyService.createCompany(body);
-    // }
-
-
-
-    // @Delete('/:id')
-    // deleteCompany(@Param('id') id: number): void {
-    //   return this.deleteCompany(id);
-    // }
-
+    @Patch('/:id/update')
+    updateCompany(@Param('id') id: number, @Body() createCompanyDTO: CreateCompanyDTO): Promise<any> {
+      return this.companyService.updateCompany(id, createCompanyDTO)
+    }
 }

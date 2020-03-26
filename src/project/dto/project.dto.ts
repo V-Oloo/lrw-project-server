@@ -13,4 +13,19 @@ export class ProjectDTO {
     @IsNotEmpty()
     endDate: string;
 
+    @IsNotEmpty()
+    cone_rate: number;
+
+    @IsNotEmpty()
+    flagger_rate: number;
+
+    @IsNotEmpty()
+    sign_rate: number;
+
+    @IsNotEmpty()
+    boards_rate: number;
+
+    @IsNotEmpty()
+    min_hours: string;
+
 }

@@ -2,13 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { static as expose } from 'express';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const hostDomain = AppModule.isDev ? `${AppModule.host}:${AppModule.port}` : AppModule.host;
-  
+  app.use(expose('avatars'));
   app.enableCors();
   const swaggerOptions = new DocumentBuilder()
         .setTitle('LRW TRAFFIC SYSTEMS')

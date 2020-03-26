@@ -1,4 +1,7 @@
-import { Repository, EntityRepository, UpdateResult} from "typeorm";
+import { NotificationStatus } from './notification-status.enum';
+import { NotificationDto } from './dto/notification.dto';
+import { Notification } from './../models/notification.entity';
+import { Repository, EntityRepository, UpdateResult, getRepository, getConnection} from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { CreateEmployeeDTO } from "./dto/create-employee.dto";
 import { ConflictException, InternalServerErrorException, HttpException, HttpStatus, NotFoundException } from "@nestjs/common";
@@ -27,6 +30,25 @@ export class EmployeeRepository extends Repository<Employee> {
         
     }
 
+    async getUserNotifications(userId: number): Promise<any> {
+        const repo = getRepository(Notification).createQueryBuilder('n')
+
+        const notifications = await repo.select('n.*')
+                                        .where('n.user = :id',{id : userId})
+                                        .orderBy('n.createdAt','DESC')
+                                        .getRawMany();
+
+        return notifications;
+    }
+
+    async getNotification(id: number): Promise<any> {
+        const notification = getRepository(Notification).findOne(id);                        
+
+        return notification;
+    }
+
+
+
     async assignableEmloyees() : Promise<any> {
         const query = this.createQueryBuilder('emp')
                       .select('emp.id', "emp_id")
@@ -36,6 +58,21 @@ export class EmployeeRepository extends Repository<Employee> {
                       .getRawMany()
 
         return query;              
+    }
+
+    async addNotification(notificationDto: NotificationDto): Promise<any> {
+        const {event, message, status, user} = notificationDto
+
+        await getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(Notification)
+                .values([
+                    { event: event, message: message, status: status, user: user }, 
+                   
+                ])
+                .execute();
+
     }
 
     async addEmployee(createEmployeeDTO: CreateEmployeeDTO): Promise<void> {
@@ -186,6 +223,23 @@ export class EmployeeRepository extends Repository<Employee> {
        employee.save();
 
     }
+
+    async updateNotifStatus(id: number, status: NotificationStatus) {
+
+        const notification = getRepository(Notification);
+        const found = await notification.findOne(id);
+
+        if (!found) {
+            throw new NotFoundException(`Notification not found`);
+        }
+
+        const result = notification.createQueryBuilder()
+        .update(Notification)
+        .set({status: status})
+        .where("id = :id", {id: id}).execute();
+
+    }
+
 
 
     private async hashPassword(password: string, salt: string): Promise<string>{

@@ -1,3 +1,5 @@
+import { NotificationStatus } from './notification-status.enum';
+import { NotificationDto } from './dto/notification.dto';
 import { JwtPayload } from './jwt-payload.interface';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { Injectable, UnauthorizedException, HttpStatus, HttpException, InternalServerErrorException } from '@nestjs/common';
@@ -117,6 +119,21 @@ export class EmployeesService {
         return this.employeeRepository.updateStatus(id, status);
     }
 
-  
+    async updateNotifStatus(id: number, status: NotificationStatus) {
+        return this.employeeRepository.updateNotifStatus(id, status);
+    }
+
+
+   async getNotifications(id: number): Promise<any> {
+       return this.employeeRepository.getUserNotifications(id);
+   }
+
+   async getNotification(id: number): Promise<any> {
+    return this.employeeRepository.getNotification(id);
+   }
+
+   async addNotification(notification: NotificationDto): Promise<any> {
+       return this.employeeRepository.addNotification(notification);
+   }
 
 }

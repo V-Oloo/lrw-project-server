@@ -19,7 +19,7 @@ export const sendEmailResetPWD = async ( email : string, link: string, name: str
   const info = await transporter.sendMail({
     from: '"Support"<support@lrwtrafficsystems.com>',
     to: email, // list of receivers
-    subject: 'Account activation', // Subject line
+    subject: 'Reset Password', // Subject line
     text: `Hello ${name}`, // plain text body
     html: `<b> click the link below to reset your account password</b>           
            <a href="${link}">Reset Password</a>`, // html body

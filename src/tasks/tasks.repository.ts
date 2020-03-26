@@ -1,3 +1,4 @@
+import { Notification } from './../models/notification.entity';
 import { getRepository, getConnection } from 'typeorm';
 import { AssignedEmployees } from './../models/assigned_employess.entity';
 import { TaskDTO } from './dto/tasks.dto';
@@ -27,10 +28,6 @@ export class TaskRepository extends Repository<Task> {
             query.andWhere('tasks.status = :status', {status});
         }
 
-        if (search) {
-            query.andWhere('(tasks.name LIKE :search OR tasks.description LIKE :search)', {search: `%${search}%`});
-        }
-
         const tasks = await query.getMany();
         return tasks;
 
@@ -38,11 +35,9 @@ export class TaskRepository extends Repository<Task> {
 
 
     async createTask(createTaskDto: TaskDTO, project: Project): Promise<any> {
-        const {name, description, plannedEndDate, plannedStartDate,street, state, city, zipCode, assignedEmployees} = createTaskDto;
+        const {plannedEndDate, plannedStartDate,street, state, city, zipCode, flaggers, createdBy} = createTaskDto;
 
         const task = new Task();
-        task.name = name;
-        task.description = description;
         task.plannedStartDate = plannedStartDate;
         task.plannedEndDate = plannedEndDate;
         task.project = project;
@@ -50,6 +45,7 @@ export class TaskRepository extends Repository<Task> {
         task.state = state,
         task.city = city,
         task.zipCode = zipCode,
+        task.createdBy = createdBy
         task.status = TaskStatus.OPEN;
 
  
@@ -57,24 +53,34 @@ export class TaskRepository extends Repository<Task> {
 
         const repo = getRepository(AssignedEmployees);
         const arr = [];
-        for (let index = 0; index < assignedEmployees.length; index++) {
+        for (let index = 0; index < flaggers.length; index++) {
             const assign = new AssignedEmployees();
-            assign.emp_id = +assignedEmployees[index];
+            assign.emp_id = +flaggers[index];
             assign.task = task;
             arr.push(assign);
         }
-
         await repo.createQueryBuilder().insert().into(AssignedEmployees).values(arr).execute();
 
+        const notification = getRepository(Notification);
+        const arrNotification = [];
+        for (let index = 0; index < flaggers.length; index++) {
+            const insert = new Notification();
+            insert.user = +flaggers[index];
+            insert.event = "Task Assignment";
+            insert.message = "You have been assigned a new task"
+            insert.status = "UNREAD" 
+            arrNotification.push(insert);
+        }
+        await notification.createQueryBuilder().insert().into(Notification).values(arrNotification).execute();
         return task;
 }
 
     async updateTask( id: number, taskDTO: TaskDTO): Promise<UpdateResult> {
-        const { name, description, plannedStartDate,street, state, city, zipCode, plannedEndDate, assignedEmployees } = taskDTO;
+        const {plannedStartDate,street, state, city, zipCode, plannedEndDate, flaggers } = taskDTO;
         
         const result = this.createQueryBuilder()
                            .update(Task)
-                           .set({name: name, description: description,
+                           .set({
                                 plannedStartDate: plannedStartDate,
                                 plannedEndDate: plannedEndDate,
                                 street:street, state: state,
@@ -84,6 +90,13 @@ export class TaskRepository extends Repository<Task> {
 
             const task = await this.findOne(id);
 
+            let strt = task.street;
+            let cty = task.city;
+            let ste = task.state;
+            let zp = task.zipCode;
+    
+            const address = strt + ',' + cty + ',' + ste + ',' + zp;
+
             await getConnection().createQueryBuilder()
                            .delete()
                            .from(AssignedEmployees)
@@ -92,14 +105,27 @@ export class TaskRepository extends Repository<Task> {
                            
             const repo = getRepository(AssignedEmployees);
             const arr = [];
-            for (let index = 0; index < assignedEmployees.length; index++) {
+            for (let index = 0; index < flaggers.length; index++) {
                 const assign = new AssignedEmployees();
-                assign.emp_id = +assignedEmployees[index];
+                assign.emp_id = +flaggers[index];
                 assign.task = task;
                 arr.push(assign);
             }
     
-            await repo.createQueryBuilder().insert().into(AssignedEmployees).values(arr).execute();               
+            await repo.createQueryBuilder().insert().into(AssignedEmployees).values(arr).execute(); 
+            
+            const notification = getRepository(Notification);
+            const arrNotification = [];
+            for (let index = 0; index < flaggers.length; index++) {
+                const insert = new Notification();
+                insert.user = +flaggers[index];
+                insert.event = "Task Update";
+                insert.message = 
+                "Your assigned Task: " + address + "has been updated, Please check for more details";
+                insert.status = "UNREAD" 
+                arrNotification.push(insert);
+            }
+            await notification.createQueryBuilder().insert().into(Notification).values(arrNotification).execute();
 
          return result;                  
     }
@@ -110,13 +136,19 @@ export class TaskRepository extends Repository<Task> {
         if (!task) {
                  throw new NotFoundException(`Task not found`);
             }
+        let street = task.street;
+        let city = task.city;
+        let state = task.state;
+        let zip = task.zipCode;
+
+        const address = street + ',' + city + ',' + state + ',' + zip;
 
         if(status == TaskStatus.IN_PROGRESS){
             let startDate = new Date()
 
             task.status = status;
             task.workStart = startDate;
-            task.save();
+            await task.save();
         }
 
         if(status == TaskStatus.COMPLETE){
@@ -124,7 +156,15 @@ export class TaskRepository extends Repository<Task> {
             
             task.status = status;
             task.workEnd = endDate;
-            task.save();
+            await task.save();
+
+            const notification = getRepository(Notification);
+            const insert = new Notification();
+            insert.user = task.createdBy;
+            insert.status = "UNREAD";
+            insert.event = "Task Completed"
+            insert.message = "The Task: " + address + "has been completed,";
+            await insert.save();
         }
        
         task.status = status;
@@ -149,8 +189,8 @@ export class TaskRepository extends Repository<Task> {
         const query = this.createQueryBuilder('task')
                           .innerJoinAndSelect('task.emp', 'a', 'task.id = a.task')
                           .innerJoinAndSelect(Employee, 'emp', 'a.emp_id = emp.id')
-                          .select(['task.id', 'task.description',
-                          'task.name', 'task.status',
+                          .select(['task.id',
+                          'task.status',
                           'task.plannedStartDate','task.plannedEndDate', 'task.street',
                           'task.city', 'task.state', 'task.zipCode'
                         ])
@@ -184,16 +224,20 @@ export class TaskRepository extends Repository<Task> {
     async getCompletedTasksTimeStamp() {
         const query = this.createQueryBuilder('task')
                           .innerJoinAndSelect('task.emp', 'a', 'task.id = a.task')
-                        //   .innerJoinAndSelect(TaskTimeStamp, 't', 'task.id = t.task_id')
                           .innerJoinAndSelect(Employee, 'emp', 'a.emp_id = emp.id')
-                          .select('task.name')
-                          .addSelect("CONCAT(emp.firstname, ' ', emp.lastname)", "name")
-                          .addSelect('t.StartDateTime', 'starTime')
-                          .addSelect('t.EndDateTime', 'endTime')
+                          .innerJoinAndSelect('task.project','p','p.id=task.project')
+                          .innerJoinAndSelect('p.customer','c','c.id=p.customer')
+                          .select("CONCAT(emp.firstname, ' ', emp.lastname)", "name")
+                          .addSelect('task.workStart', 'starTime')
+                          .addSelect('task.workEnd', 'endTime')
+                          .addSelect('c.organization', 'customer')
+                          .addSelect('p.name','project')
+                          .where('task.status = :status',{status: 'COMPLETE'})
                           .groupBy("task.id")
-                          .addGroupBy('t.StartDateTime')
-                          .addGroupBy('t.EndDateTime')
                           .addGroupBy('emp.id')
+                          .addGroupBy('p.id')
+                          .addGroupBy('c.id')
+                          .orderBy('task.workStart', 'DESC')
                           .getRawMany();
                           
              return query;             
@@ -203,10 +247,11 @@ export class TaskRepository extends Repository<Task> {
     async getEmployeeTasks(empId: number): Promise<any> {
         const query = this.createQueryBuilder('task')
                           .innerJoinAndSelect('task.emp','a')
-                          .select(['task.id', 'task.description','task.name', 'task.status','task.plannedStartDate','task.plannedEndDate'])
+                          .select(['task.id','task.status','task.plannedStartDate','task.plannedEndDate'])
                           .where("a.emp_id = :id", { id: empId })
                           .getRawMany();
 
         return query;                  
     }
+
 }

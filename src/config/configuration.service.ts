@@ -58,6 +58,7 @@ export class ConfigurationService {
           logger: 'file',
     
           migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+
     
           cli: {
             migrationsDir: 'src/migrations',

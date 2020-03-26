@@ -37,13 +37,18 @@ export class ProjectRepository extends Repository<Project> {
     }
 
     async addProject(projectDTO: ProjectDTO, customer: Customer): Promise<void> {
-        const {name, description, startDate,endDate } = projectDTO; 
+        const {name, description, startDate,endDate, cone_rate,sign_rate,flagger_rate,min_hours,boards_rate } = projectDTO; 
 
             const project = new Project();
             project.name = name;
             project.description = description;
             project.startDate = startDate;
             project.endDate = endDate;
+            project.cone_rate= cone_rate;
+            project.flagger_rate = flagger_rate;
+            project.min_hours = min_hours;
+            project.sign_rate = sign_rate;
+            project.boards_rate = boards_rate;
             project.status = "OPEN";
             project.customer = customer
             await project.save();

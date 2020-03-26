@@ -8,13 +8,7 @@ export class Task extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Column({type: "text"})
-    name: string;
-
-    @Column({type: "text"})
-    description: string;
-
+    
     @Column()
     plannedStartDate: string;
 
@@ -41,6 +35,9 @@ export class Task extends BaseEntity {
 
     @Column({type: 'timestamptz',nullable: true})
     workEnd: Date;
+
+    @Column({type: 'int'})
+    createdBy: number;
 
     @ManyToOne(() => Project,project => project.tasks)
     project: Project

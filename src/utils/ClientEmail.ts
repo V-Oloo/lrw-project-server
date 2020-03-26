@@ -5,7 +5,7 @@ import { EmailDto } from 'src/tasks/dto/email.dto';
 
 export const clientEmail = async (data: any, emailDto: EmailDto) => {
     console.log(data);
-    const { email, address, start, end, org, name } = emailDto;
+    const { email, address, start, end, org, name, time } = emailDto;
    
   
   const transporter = nodemailer.createTransport({
@@ -35,7 +35,7 @@ export const clientEmail = async (data: any, emailDto: EmailDto) => {
   let mailOptions = {
     from: '"Support"<support@lrwtrafficsystems.com>',
     to: email,
-    subject: 'LRW TRAFFIC SYSTEMS',
+    subject: 'Completed Task Summary',
     text: 'Hello User',
     template: 'index',
     context: {
@@ -43,7 +43,8 @@ export const clientEmail = async (data: any, emailDto: EmailDto) => {
       workEnd: end,
       address: address,
       org: org,
-      name: name
+      name: name,
+      time: time,
     }
   }
 

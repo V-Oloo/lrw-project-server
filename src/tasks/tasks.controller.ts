@@ -64,16 +64,16 @@ export class TasksController {
     }
 
     
-    @Get('/completedTasks/testing')
+    @Get('/completedTasks/summary')
     getCompletedTasks(): Promise<any> {
       return this.taskService.getCompleteTasks();
     }
 
     @Post('/:id/sendMail')
     sendMailtoClient(@Param('id', ParseIntPipe) id: number, @Body() email: EmailDto) {
-      console.log(email);
-      console.log(id);
        return this.taskService.sendEmails(id, email);
      }
+
+     
 
 }

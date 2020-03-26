@@ -21,4 +21,19 @@ export class Company extends BaseEntity {
 
     @Column()
     address: string;
+
+    @Column({type : 'float'})
+    cone_rate: number;
+
+    @Column({type : 'float'})
+    flagger_rate: number;
+
+    @Column({type : 'float'})
+    sign_rate: number;
+
+    @Column()
+    boards_rate: number;
+
+    @Column()
+    min_hours: string;
 }
